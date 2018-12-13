@@ -14,6 +14,7 @@
 package feign;
 
 import java.io.IOException;
+import java.rmi.UnexpectedException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import feign.InvocationHandlerFactory.MethodHandler;
@@ -116,6 +117,15 @@ final class SynchronousMethodHandler implements MethodHandler {
 
     boolean shouldClose = true;
     try {
+      boolean cantContinue = true;
+      for (int code : metadata.expectedCodes()) {
+        if (code == response.status()) {
+          cantContinue = false;
+        }
+      }
+      if (cantContinue) {
+        throw new FeignException.UnexpectedCode(response.status());
+      }
       if (logLevel != Logger.Level.NONE) {
         response =
             logger.logAndRebufferResponse(metadata.configKey(), logLevel, response, elapsedTime);

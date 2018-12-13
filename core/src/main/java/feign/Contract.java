@@ -22,11 +22,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -265,6 +261,13 @@ public interface Contract {
         checkState(headersOnMethod.length > 0, "Headers annotation was empty on method %s.",
             method.getName());
         data.template().headers(toMap(headersOnMethod));
+      } else if (annotationType == ExpectedCodes.class) {
+        int[] expectedCodes = ExpectedCodes.class.cast(methodAnnotation).value();
+        for (int code : expectedCodes) {
+          checkState(code > 0 && code < 1000,
+                  "ExpectedCodes annotation not between %d and %d.", 0, 1000);
+        }
+        data.expectedCodes(expectedCodes);
       }
     }
 

@@ -220,4 +220,10 @@ public class FeignException extends RuntimeException {
       super(504, message, body);
     }
   }
+
+  public static class UnexpectedCode extends FeignException {
+    public UnexpectedCode(int code) {
+      super(String.format("Unexpected code for request: %d", code));
+    }
+  }
 }
